@@ -173,5 +173,20 @@ void median_filter_main(char* in_filename, char* out_filename){
     free(out);
 }
 
+
+void apply_median(char* img_name, char* out_name){
+    make_img_conversion(img_name);
+    median_filter_main("img.ppm", out_name);
+}
+
+void make_img_conversion(char *filename) {
+    char convert_cmd[26] = "convert ";
+    char name_img_out[26] = " img.ppm";
+    strcat(convert_cmd, filename);
+    strcat(convert_cmd, name_img_out);
+    system(convert_cmd);
+}
+
+
 #endif // MEDIAN_FILTER_H_INCLUDED
 #endif // FILTERS_H_INCLUDED
