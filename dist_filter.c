@@ -3,6 +3,21 @@
 #include <sys/time.h>
 #include "filters.h"
 
+void blue() {
+    printf("\033[1;34m");
+}
+
+void green() {
+    printf("\033[1;32m");
+}
+
+void magenta() {
+    printf("\033[1;35m");
+}
+
+void reset() {
+    printf("\033[0m");
+}
   
 int main(int argc, char* argv[]) { 
 
@@ -52,13 +67,27 @@ int main(int argc, char* argv[]) {
             MPI_Send(&START_FLAG, 1, MPI_INT, 1, 0, MPI_COMM_WORLD); 
 
             //Se inicia el trabajo en el nodo 0
-            printf("\nApplying Median Filter in %s. Core %d out of %d processors\n", processor_name, pid, np);
+            printf("\nApplying Median Filter in ");
+            green();
+            printf("%s", processor_name);
+            reset();
+            printf(". Core %d out of %d processors\n", pid+1, np);
             apply_median("out-0.jpg", "out0.ppm");
+
+            gettimeofday(&tf, NULL);   // Instante final
+            tiempo= (tf.tv_sec - ti.tv_sec)*1000 + (tf.tv_usec - ti.tv_usec)/1000.0;
+            blue();
+            printf("\nTiempo de ejecución en %s:", processor_name);
+            reset();
+            printf(" %g segundos\n", tiempo/1000);
 
             //Cuando el nodo 1 termine su parte, envía un mensaje
             MPI_Recv(&START_FLAG, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &status); 
 
-            printf("Joining images in %s. Core %d out of %d processors\n", processor_name, pid, np);
+            printf("\nJoining images in ");
+            green();
+            printf("%s\n", processor_name);
+            reset();
             char join_img_cmd[75] = "convert out0.ppm out1.ppm +append result";
             strcat(join_img_cmd, img_format);
             system(join_img_cmd);
@@ -67,11 +96,18 @@ int main(int argc, char* argv[]) {
 
             gettimeofday(&tf, NULL);   // Instante final
             tiempo= (tf.tv_sec - ti.tv_sec)*1000 + (tf.tv_usec - ti.tv_usec)/1000.0;
-            printf("\nTiempo de ejecución: %g segundos\n", tiempo/1000);
+            magenta();
+            printf("\nTiempo de ejecución total: ");
+            reset();
+            printf("%g segundos\n\n", tiempo/1000);
         }else{
             gettimeofday(&ti, NULL);   // Instante inicial
 
-            printf("\nApplying Median Filter in %s. Core %d out of %d processors\n", processor_name, pid, np);
+            printf("\nApplying Median Filter in ");
+            green();
+            printf("%s", processor_name);
+            reset();
+            printf(". Core %d out of %d processors\n", pid+1, np);
             apply_median(img_name, "out0.ppm");
 
             char join_img_cmd[75] = "convert out0.ppm result";
@@ -82,18 +118,35 @@ int main(int argc, char* argv[]) {
 
             gettimeofday(&tf, NULL);   // Instante final
             tiempo= (tf.tv_sec - ti.tv_sec)*1000 + (tf.tv_usec - ti.tv_usec)/1000.0;
-            printf("\nTiempo de ejecución: %g segundos\n", tiempo/1000);
+            magenta();
+            printf("\nTiempo de ejecución total: ");
+            reset();
+            printf("%g segundos\n\n", tiempo/1000);
         }
     }else { 
 
         int START_FLAG;
+        struct timeval ti, tf;
+        double tiempo;
 
         //Recibe mensaje de inicio
         MPI_Recv(&START_FLAG, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status); 
 
+        gettimeofday(&ti, NULL);   // Instante inicial
         //Realiza el trabajo y envía el aviso al nodo master
-        printf("Applying Median Filter in %s. Core %d out of %d processors\n", processor_name, pid, np);
+        printf("Applying Median Filter in ");
+        green();
+        printf("%s", processor_name);
+        reset();
+        printf(". Core %d out of %d processors\n", pid+1, np);
         apply_median("out-1.jpg", "out1.ppm");
+
+        gettimeofday(&tf, NULL);   // Instante final
+        tiempo= (tf.tv_sec - ti.tv_sec)*1000 + (tf.tv_usec - ti.tv_usec)/1000.0;
+        blue();
+        printf("Tiempo de ejecución en %s:", processor_name);
+        reset();
+        printf(" %g segundos\n", tiempo/1000);
 
         MPI_Send(&START_FLAG, 1, MPI_INT, 0, 0, MPI_COMM_WORLD); 
     } 

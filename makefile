@@ -20,3 +20,9 @@ clean veryclean:
 	$(RM) filter
 	clear
 
+
+start_stats:
+	sudo nethogs -t &> nethogs.log &
+
+stats:
+	./hogs -type=pretty nethogs.log
