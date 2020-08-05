@@ -9,3 +9,5 @@ convert out-0.jpeg out-1.jpeg +append result.jpg
 https://medium.com/mpi-cluster-setup/mpi-clusters-within-a-lan-77168e0191b1
 
 https://www.geeksforgeeks.org/sum-of-an-array-using-mpi/
+
+https://clouding.io/hc/es/articles/360011385720-Compartir-directorios-en-GNU-Linux-con-NFS
